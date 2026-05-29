@@ -6,7 +6,8 @@
 # Componentes: VSCode + Node 22 + npm + wollok-ts-cli + extensiones VSCode
 #
 # Uso remoto (desde GitHub):
-#   irm https://github.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
+#   Set-ExecutionPolicy RemoteSigned -Scope Process -Force;
+#   irm https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
 #
 # Requerimientos: Windows 10/11, PowerShell 5.1+, winget disponible
 # ===================================================================================
