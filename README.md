@@ -25,7 +25,7 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 ---
 
 ## Instrucciones de Uso
-> [!INFO]   
+> [!IMPORTANT]   
 > **Se puede hacer con dos metodos, uno con descarga previa y otro completamente online**
 
 ### Método con ejecutable - Con descarga previa
