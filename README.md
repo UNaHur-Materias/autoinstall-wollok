@@ -2,29 +2,9 @@
 
 Script desatendido de PowerShell para instalar, actualizar y configurar de forma automática todo el entorno de desarrollo de **Wollok** en Windows a través de `winget`.
 
-## 📦 ¿Qué instala y configura?
-
-| Componente | Origen / Método | Comportamiento si ya existe |
-| :--- | :--- | :--- |
-| **Visual Studio Code** | `winget` (Microsoft.VisualStudioCode) | Lo saltea si ya se encuentra en el `PATH` |
-| **Node.js 22 LTS** | `winget` (OpenJS.NodeJS.LTS) | Lo saltea si tenés **v22+**. Actualiza si es menor |
-| **wollok-ts-cli** | `npm -g wollok-ts-cli` | Se reinstala/actualiza a la última versión |
-| **Extensiones VSCode** | `code --install-extension` | Instala LSP e Highlight de forma forzada |
-| **VSCode `settings.json`**| `$env:APPDATA\Code\User` | Inyecta path normalizado, idioma `es` y diagramas |
-
 ---
 
-## 💻 Requisitos del Sistema
-
-* **Sistema Operativo:** Windows 10 / 11.
-* **PowerShell:** v5.1 o superior (nativo en Windows).
-* **Gestor de Paquetes:** `winget` instalado y funcional (incluido en Windows moderno).
-* **Red:** Conexión activa a Internet.
-* **Permisos:** Requiere ejecutarse en una consola con privilegios de **Administrador**.
-
----
-
-## Instrucciones de Uso
+## Instrucciones de Uso rápido
 > [!IMPORTANT]   
 > **Se puede hacer con dos metodos, uno con descarga previa y otro completamente online**
 
@@ -67,3 +47,25 @@ Una vez finalizado el proceso con éxito:
 * [Sitio Oficial Wollok](https://www.wollok.org)
 * [Resolución de Problemas Frecuentes](https://www.wollok.org/getting_started/troubleshooting/)
 * [Comunidad en Discord](https://discord.gg/ZstgCPKEaa)
+
+---
+
+## 📦 ¿Qué instala y configura?
+
+| Componente | Origen / Método | Comportamiento si ya existe |
+| :--- | :--- | :--- |
+| **Visual Studio Code** | `winget` (Microsoft.VisualStudioCode) | Lo saltea si ya se encuentra en el `PATH` |
+| **Node.js 22 LTS** | `winget` (OpenJS.NodeJS.LTS) | Lo saltea si tenés **v22+**. Actualiza si es menor |
+| **wollok-ts-cli** | `npm -g wollok-ts-cli` | Se reinstala/actualiza a la última versión |
+| **Extensiones VSCode** | `code --install-extension` | Instala LSP e Highlight de forma forzada |
+| **VSCode `settings.json`**| `$env:APPDATA\Code\User` | Inyecta path normalizado, idioma `es` y diagramas |
+
+---
+
+## 💻 Requisitos del Sistema
+
+* **Sistema Operativo:** Windows 10 / 11.
+* **PowerShell:** v5.1 o superior (nativo en Windows).
+* **Gestor de Paquetes:** `winget` instalado y funcional (incluido en Windows moderno).
+* **Red:** Conexión activa a Internet.
+* **Permisos:** Requiere ejecutarse en una consola con privilegios de **Administrador**.
