@@ -1,4 +1,4 @@
-# 🐦 wollok-setup
+# 💢 wollok-setup
 
 Script de PowerShell para instalar y configurar automáticamente el entorno de desarrollo **Wollok** en Windows.
 
