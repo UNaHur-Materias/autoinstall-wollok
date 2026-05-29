@@ -28,9 +28,7 @@ Si algún componente ya está instalado, el script lo omite o actualiza según c
 Abrí PowerShell **como Administrador** y ejecutá:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-
-irm https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
+Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
 ```
 
 > Reemplazá `TU_USUARIO/TU_REPO` con tu usuario y repositorio de GitHub.
