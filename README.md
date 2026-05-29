@@ -1,50 +1,69 @@
-# 💢 wollok-setup
+# 💢 wollok-setup — Instalador Online Automatizado
 
-Script de PowerShell para instalar y configurar automáticamente el entorno de desarrollo **Wollok** en Windows.
+Script desatendido de PowerShell para instalar, actualizar y configurar de forma automática todo el entorno de desarrollo de **Wollok** en Windows a través de `winget`.
 
-## ¿Qué instala?
+## 📦 ¿Qué instala y configura?
 
-| Componente | Detalle |
-|---|---|
-| Visual Studio Code | Última versión estable |
-| Node.js 22 LTS | Runtime requerido por Wollok CLI |
-| wollok-ts-cli | Intérprete del lenguaje Wollok (vía npm) |
-| Extensión `wollok-lsp-ide` | Soporte de lenguaje en VSCode |
-| Extensión `wollok-highlight` | Resaltado de sintaxis en VSCode |
-| `settings.json` de VSCode | Path de Wollok, idioma español, diagrama dinámico |
+| Componente | Origen / Método | Comportamiento si ya existe |
+| :--- | :--- | :--- |
+| **Visual Studio Code** | `winget` (Microsoft.VisualStudioCode) | Lo saltea si ya se encuentra en el `PATH` |
+| **Node.js 22 LTS** | `winget` (OpenJS.NodeJS.LTS) | Lo saltea si tenés **v22+**. Actualiza si es menor |
+| **wollok-ts-cli** | `npm -g wollok-ts-cli` | Se reinstala/actualiza a la última versión |
+| **Extensiones VSCode** | `code --install-extension` | Instala LSP e Highlight de forma forzada |
+| **VSCode `settings.json`**| `$env:APPDATA\Code\User` | Inyecta path normalizado, idioma `es` y diagramas |
 
-Si algún componente ya está instalado, el script lo omite o actualiza según corresponda.
+---
 
-## Requisitos previos
+## 💻 Requisitos del Sistema
 
-- Windows 10 / 11
-- PowerShell 5.1 o superior
-- `winget` disponible (incluido en Windows 10 21H1+ y Windows 11)
-- Conexión a internet
-- Ejecutar como **Administrador**
+* **Sistema Operativo:** Windows 10 / 11.
+* **PowerShell:** v5.1 o superior (nativo en Windows).
+* **Gestor de Paquetes:** `winget` instalado y funcional (incluido en Windows moderno).
+* **Red:** Conexión activa a Internet.
+* **Permisos:** Requiere ejecutarse en una consola con privilegios de **Administrador**.
 
-## Uso
+---
 
-Abrí PowerShell **como Administrador** y ejecutá:
+## Instrucciones de Uso
+> [!INFO]
+> **Se puede hacer con dos metodos, uno con descarga previa y otro completamente online**
+
+### Método con ejecutable - Con descarga previa
+
+1. Cloná el repo en el pendrive: git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
+2. Ejecutá el archivo `setup.cmd` en la raíz del repositorio recien clonado.
+3. Al finalizar te da un informe de la instalación
+
+
+### Método por consola PowerShell - Completamente online 
+
+1. Hacé click derecho en el botón de Inicio de Windows y seleccioná **Terminal (Administrador)** o **PowerShell (Administrador)**.
+2. Copiá, pegá el siguiente comando y presioná `ENTER`:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
+Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm [https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1](https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1) | iex
+
 ```
+3. Al finalizar te da un informe de la instalación
 
-> Reemplazá `TU_USUARIO/TU_REPO` con tu usuario y repositorio de GitHub.
 
-El script muestra el progreso de cada paso y un resumen de versiones instaladas al finalizar.
+> 💡 **Manejo de errores:** El script es tolerante a fallas. Al finalizar la instalación de Node.js o VSCode, refresca dinámicamente las variables de entorno de la sesión para continuar instalando los paquetes de `npm` y las extensiones sin necesidad de reiniciar la consola.
 
-## Próximos pasos
+---
 
-Una vez completada la instalación:
+## 🎯 Próximos Pasos
 
-1. Abrí Visual Studio Code
-2. Creá una carpeta de proyecto
-3. Seguí la guía oficial: [wollok.org — Nuevo proyecto](https://www.wollok.org/getting_started/new_project)
+Una vez finalizado el proceso con éxito:
 
-## Recursos
+1. Abrí **Visual Studio Code**.
+2. Creá o abrí una carpeta vacía para tu proyecto.
+3. Creá un archivo con extensión `.wlk` y el entorno lsp/diagramas se activará automáticamente.
+4. Seguí la guía oficial: [wollok.org — Configurar Nuevo Proyecto](https://www.wollok.org/getting_started/new_project).
 
-- [Documentación oficial de Wollok](https://www.wollok.org)
-- [Problemas comunes](https://www.wollok.org/getting_started/troubleshooting/)
-- [Discord de Wollok](https://discord.gg/ZstgCPKEaa)
+---
+
+## 🔗 Recursos Útiles
+
+* [Sitio Oficial Wollok](https://www.wollok.org)
+* [Resolución de Problemas Frecuentes](https://www.wollok.org/getting_started/troubleshooting/)
+* [Comunidad en Discord](https://discord.gg/ZstgCPKEaa)
