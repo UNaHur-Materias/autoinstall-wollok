@@ -28,14 +28,14 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 > [!IMPORTANT]   
 > **Se puede hacer con dos metodos, uno con descarga previa y otro completamente online**
 
-### Método con ejecutable - Con descarga previa
+### 🖱️ Método con ejecutable - Con descarga previa
 
 1. Cloná el repo en el pendrive: git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
 2. Ejecutá el archivo `setup.cmd` en la raíz del repositorio recien clonado.
 3. Al finalizar te da un informe si hay error, o cierra la ventana si termina correctamente la instalación
 
 
-### Método por consola PowerShell - Completamente online 
+### 🖥️ Método por consola PowerShell - Completamente online 
 
 1. Hacé click derecho en el botón de Inicio de Windows y seleccioná **Terminal (Administrador)** o **PowerShell (Administrador)**.
 2. Copiá, pegá el siguiente comando y presioná `ENTER`:
