@@ -3,7 +3,7 @@
 #
 # Instala y configura el entorno Wollok completo en Windows
 #
-# Componentes: VSCode + Node 20.20 + npm + wollok-ts-cli + extensiones VSCode
+# Componentes: VSCode + Node 20 + npm + wollok-ts-cli + extensiones VSCode
 #
 # Uso remoto (desde GitHub):
 #   Set-ExecutionPolicy RemoteSigned -Scope Process -Force;
@@ -81,33 +81,25 @@ if (Test-Command "code") {
 }
 
 ##########################################################
-#       2. Instalar Node.js 20.20 (Fuerza versión exacta)
+#       2. Instalar Node.js 20 LTS 
 ##########################################################
 
-Write-Step "Node.js 20.20"
+Write-Step "Node.js 20 LTS"
 $nodeInstalled = Test-Command "node"
-
 if ($nodeInstalled) {
     $nodeVersion = (node -v) -replace "v", ""
-    
-    if ($nodeVersion -eq "20.20.0") {
-        Write-Skip "Node $nodeVersion (ya es la versión exacta requerida)"
+    $nodeMajor   = [int]($nodeVersion.Split(".")[0])
+    if ($nodeMajor -ge 20) {
+        Write-Skip "Node $nodeVersion"
     } else {
-        Write-Warn "Se detectó Node $nodeVersion. Se requiere estrictamente la versión 20.20. Desinstalando..."
-        
-        # Desinstala cualquier versión existente mediante winget
-        winget uninstall --id OpenJS.NodeJS.LTS --silent --accept-source-agreements
-        winget uninstall --id OpenJS.NodeJS --silent --accept-source-agreements
-        
-        Write-Host "  Instalando la versión exacta Node.js 20.20.0..."
-        winget install --id OpenJS.NodeJS.LTS --version "20.20.0" --silent --accept-package-agreements --accept-source-agreements
-        
+        Write-Host "  Versión detectada: $nodeVersion — actualizando a Node 20..."
+        winget install --id OpenJS.NodeJS.LTS --version "20*" --silent --accept-package-agreements --accept-source-agreements
         Refresh-Path
-        Write-Ok "Node reinstalado a la versión exacta: $(node -v)"
+        Write-Ok "Node actualizado a $(node -v)"
     }
 } else {
-    Write-Host "  Instalando la versión exacta Node.js 20.20.0 via winget..."
-    winget install --id OpenJS.NodeJS.LTS --version "20.20.0" --silent --accept-package-agreements --accept-source-agreements
+    Write-Host "  Instalando Node.js 20 LTS via winget..."
+    winget install --id OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
     Refresh-Path
     if (Test-Command "node") {
         Write-Ok "Node instalado: $(node -v)"
