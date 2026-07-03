@@ -2,6 +2,18 @@
 
 Script desatendido de PowerShell para instalar, actualizar y configurar de forma automática todo el entorno de desarrollo de **Wollok** en Windows a través de `winget`.
 
+
+---
+## Instalar gh cli por consola
+```powershell
+winget install --id GitHub.cli
+```
+
+## Login con gh cli
+```powershell
+gh auth login
+```
+
 ---
 
 ## Instrucciones de Uso rápido
@@ -13,6 +25,7 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 1. Cloná el repo en el pendrive: git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
 2. Ejecutá el archivo `setup.cmd` en la raíz del repositorio recien clonado.
 3. Al finalizar te da un informe si hay error, o cierra la ventana si termina correctamente la instalación
+
 
 ### Script
 
