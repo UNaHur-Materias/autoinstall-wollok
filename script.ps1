@@ -12,7 +12,6 @@
 # Requerimientos: Windows 10/11, PowerShell 5.1+, winget disponible
 # ===================================================================================
 
-
 # Requires -RunAsAdministrator
 
 $ErrorActionPreference = "Stop"
@@ -81,41 +80,92 @@ if (Test-Command "code") {
 }
 
 ##########################################################
-#       2. Instalar Node.js 20.20 (Fuerza versión exacta)
+#       2. Instalar Node.js 20.20.0 (Limpieza y MSI Nativo)
 ##########################################################
 
-Write-Step "Node.js 20.20"
-$nodeInstalled = Test-Command "node"
+Write-Step "Node.js 20.20.0"
 
-if ($nodeInstalled) {
-    $nodeVersion = (node -v) -replace "v", ""
-    
-    if ($nodeVersion -eq "20.20.0") {
-        Write-Skip "Node $nodeVersion (ya es la versión exacta requerida)"
+$targetVersion = "20.20.0"
+$needsInstallation = $true
+
+if (Test-Command "node") {
+    $currentNodeVersion = (node -v) -replace "v", ""
+    if ($currentNodeVersion -eq $targetVersion) {
+        Write-Skip "Node $currentNodeVersion (ya es la versión exacta requerida)"
+        $needsInstallation = $false
     } else {
-        Write-Warn "Se detectó Node $nodeVersion. Se requiere estrictamente la versión 20.20. Desinstalando..."
-        
-        # Desinstala cualquier versión existente mediante winget
-        winget uninstall --id OpenJS.NodeJS.LTS --silent --accept-source-agreements
-        winget uninstall --id OpenJS.NodeJS --silent --accept-source-agreements
-        
-        Write-Host "  Instalando la versión exacta Node.js 20.20.0..."
-        winget install --id OpenJS.NodeJS.LTS --version "20.20.0" --silent --accept-package-agreements --accept-source-agreements
-        
-        Refresh-Path
-        Write-Ok "Node reinstalado a la versión exacta: $(node -v)"
+        Write-Warn "Se detectó Node $currentNodeVersion. Se requiere estrictamente la v$targetVersion. Limpiando..."
     }
-} else {
-    Write-Host "  Instalando la versión exacta Node.js 20.20.0 via winget..."
-    winget install --id OpenJS.NodeJS.LTS --version "20.20.0" --silent --accept-package-agreements --accept-source-agreements
+}
+
+if ($needsInstallation) {
+    # 1. Matar procesos activos de Node para evitar archivos bloqueados
+    Write-Host "  [1/4] Cerrando procesos de Node activos..."
+    Get-Process -Name "node" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+    # 2. Remover CUALQUIER versión instalada previamente por MSI mediante el Registro de Windows
+    Write-Host "  [2/4] Desinstalando versiones previas de Node.js (MSI)..."
+    $uninstallKeys = @(
+        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\Software\Wow6432Node\Windows\CurrentVersion\Uninstall\*"
+    )
+    $oldNodes = Get-ItemProperty $uninstallKeys -ErrorAction SilentlyContinue | 
+                Where-Object { $_.DisplayName -like "*Node.js*" }
+
+    foreach ($app in $oldNodes) {
+        if ($app.UninstallString) {
+            Write-Warn "  Removiendo: $($app.DisplayName)..."
+            # Llama a msiexec para desinstalar de forma pasiva/silenciosa y espera a que termine
+            $uninstProc = Start-Process msiexec.exe -ArgumentList "/x $($app.PSChildName) /qn /norestart" -Wait -PassThru
+            if ($uninstProc.ExitCode -eq 0 -or $uninstProc.ExitCode -ne 1605) {
+                Write-Ok "  Desinstalación exitosa de $($app.DisplayName)"
+            }
+        }
+    }
+
+    # Intentar limpiar también por si quedó algún rastro flotando en Winget
+    winget uninstall --id OpenJS.NodeJS.LTS --silent --accept-source-agreements > $null 2>&1
+    winget uninstall --id OpenJS.NodeJS --silent --accept-source-agreements > $null 2>&1
+
+    # 3. Descargar el instalador oficial MSI de Node v20.20.0 directamente de nodejs.org
+    Write-Host "  [3/4] Descargando instalador MSI oficial para Node v$targetVersion..."
+    $msiUrl = "https://nodejs.org/dist/v$targetVersion/node-v$targetVersion-x64.msi"
+    $msiPath = Join-Path $env:TEMP "node-v$targetVersion-x64.msi"
+    
+    # Descarga limpia usando .NET para evitar problemas con Invoke-WebRequest clásico
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $msiUrl -OutFile $msiPath -UseBasicParsing
+
+    # 4. Instalación silenciosa del nuevo MSI limpio
+    Write-Host "  [4/4] Instalando Node.js v$targetVersion de forma silenciosa..."
+    # /qn ejecuta de forma totalmente silenciosa. Retornamos variables de entorno por defecto.
+    $installProc = Start-Process msiexec.exe -ArgumentList "/i `"$msiPath`" /qn /norestart" -Wait -PassThru
+
+    # Borrar el archivo temporal descargado
+    Remove-Item $msiPath -ErrorAction SilentlyContinue
+
+    if ($installProc.ExitCode -ne 0) {
+        Write-Fail "El instalador MSI devolvió un código de error: $($installProc.ExitCode)"
+        exit 1
+    }
+
+    # Forzar refresco estricto del PATH del sistema
     Refresh-Path
+
+    # Verificación de efectividad
     if (Test-Command "node") {
-        Write-Ok "Node instalado: $(node -v)"
+        $finalVersion = (node -v)
+        if ($finalVersion -replace "v", "" -eq $targetVersion) {
+            Write-Ok "Node instalado y verificado correctamente: $finalVersion"
+        } else {
+            Write-Fail "Se instaló Node pero la versión reportada es $finalVersion. Puede requerir reiniciar la terminal."
+        }
     } else {
-        Write-Fail "Node no se pudo instalar. Verificá winget e intentá manualmente desde https://nodejs.org"
+        Write-Fail "Node.js no se encuentra disponible en el PATH actual luego de la instalación."
         exit 1
     }
 }
+
 
 ##########################################################
 #       3. Verificar npm 
