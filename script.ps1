@@ -80,12 +80,13 @@ if (Test-Command "code") {
 }
 
 ##########################################################
-#       2. Instalar Node.js 20.20.0 (Limpieza y MSI Nativo)
+#       2. Instalar Node.js 20.20.0 (Extracción Binaria Directa)
 ##########################################################
 
 Write-Step "Node.js 20.20.0"
 
 $targetVersion = "20.20.0"
+$installDir = "C:\Program Files\nodejs"
 $needsInstallation = $true
 
 if (Test-Command "node") {
@@ -99,73 +100,74 @@ if (Test-Command "node") {
 }
 
 if ($needsInstallation) {
-    # 1. Matar procesos activos de Node para evitar archivos bloqueados
+    # 1. Matar procesos activos de Node para poder manipular archivos
     Write-Host "  [1/4] Cerrando procesos de Node activos..."
     Get-Process -Name "node" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-    # 2. Remover CUALQUIER versión instalada previamente por MSI mediante el Registro de Windows
-    Write-Host "  [2/4] Desinstalando versiones previas de Node.js (MSI)..."
-    $uninstallKeys = @(
-        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
-        "HKLM:\Software\Wow6432Node\Windows\CurrentVersion\Uninstall\*"
-    )
-    $oldNodes = Get-ItemProperty $uninstallKeys -ErrorAction SilentlyContinue | 
-                Where-Object { $_.DisplayName -like "*Node.js*" }
-
-    foreach ($app in $oldNodes) {
-        if ($app.UninstallString) {
-            Write-Warn "  Removiendo: $($app.DisplayName)..."
-            # Llama a msiexec para desinstalar de forma pasiva/silenciosa y espera a que termine
-            $uninstProc = Start-Process msiexec.exe -ArgumentList "/x $($app.PSChildName) /qn /norestart" -Wait -PassThru
-            if ($uninstProc.ExitCode -eq 0 -or $uninstProc.ExitCode -ne 1605) {
-                Write-Ok "  Desinstalación exitosa de $($app.DisplayName)"
-            }
+    # 2. Remover rastro de instalaciones viejas en el PATH físico si existían
+    Write-Host "  [2/4] Preparando directorio limpio en $installDir..."
+    if (Test-Path $installDir) {
+        try {
+            Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Warn "No se pudo borrar por completo la carpeta anterior, se sobrescribirán los archivos."
         }
     }
+    # Asegurar que la carpeta exista
+    New-Item -ItemType Directory -Path $installDir -Force | Out-Null
 
-    # Intentar limpiar también por si quedó algún rastro flotando en Winget
-    winget uninstall --id OpenJS.NodeJS.LTS --silent --accept-source-agreements > $null 2>&1
-    winget uninstall --id OpenJS.NodeJS --silent --accept-source-agreements > $null 2>&1
-
-    # 3. Descargar el instalador oficial MSI de Node v20.20.0 directamente de nodejs.org
-    Write-Host "  [3/4] Descargando instalador MSI oficial para Node v$targetVersion..."
-    $msiUrl = "https://nodejs.org/dist/v$targetVersion/node-v$targetVersion-x64.msi"
-    $msiPath = Join-Path $env:TEMP "node-v$targetVersion-x64.msi"
+    # 3. Descargar el ZIP ejecutable directo (sin instalador MSI)
+    Write-Host "  [3/4] Descargando binarios portables de Node v$targetVersion..."
+    $zipUrl = "https://nodejs.org/dist/v$targetVersion/node-v$targetVersion-win-x64.zip"
+    $zipPath = Join-Path $env:TEMP "node-v$targetVersion-win-x64.zip"
     
-    # Descarga limpia usando .NET para evitar problemas con Invoke-WebRequest clásico
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri $msiUrl -OutFile $msiPath -UseBasicParsing
-
-    # 4. Instalación silenciosa del nuevo MSI limpio
-    Write-Host "  [4/4] Instalando Node.js v$targetVersion de forma silenciosa..."
-    # /qn ejecuta de forma totalmente silenciosa. Retornamos variables de entorno por defecto.
-    $installProc = Start-Process msiexec.exe -ArgumentList "/i `"$msiPath`" /qn /norestart" -Wait -PassThru
-
-    # Borrar el archivo temporal descargado
-    Remove-Item $msiPath -ErrorAction SilentlyContinue
-
-    if ($installProc.ExitCode -ne 0) {
-        Write-Fail "El instalador MSI devolvió un código de error: $($installProc.ExitCode)"
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+    } catch {
+        Write-Fail "Error crítico al descargar el archivo comprimido de Node.js."
         exit 1
     }
 
-    # Forzar refresco estricto del PATH del sistema
+    # 4. Extraer los binarios directamente en Archivos de Programa
+    Write-Host "  [4/4] Extrayendo archivos de Node v$targetVersion..."
+    $extractTemp = Join-Path $env:TEMP "node_temp_extract"
+    if (Test-Path $extractTemp) { Remove-Item $extractTemp -Recurse -Force -ErrorAction SilentlyContinue }
+    
+    # Expandir el contenido en una carpeta temporal
+    Expand-Archive -Path $zipPath -DestinationPath $extractTemp -Force
+    
+    # Mover el contenido de la subcarpeta interna hacia el destino final fijado
+    $extractedFolder = Join-Path $extractTemp "node-v$targetVersion-win-x64"
+    Copy-Item -Path "$extractedFolder\*" -Destination $installDir -Recurse -Force
+    
+    # Limpieza de archivos temporales descargados
+    Remove-Item $zipPath -ErrorAction SilentlyContinue
+    Remove-Item $extractTemp -Recurse -Force -ErrorAction SilentlyContinue
+
+    # Forzar la inclusión permanente de nuestra ruta en el PATH del Sistema si no está
+    $machinePath = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+    if ($machinePath -notlike "*C:\Program Files\nodejs*") {
+        [System.Environment]::SetEnvironmentVariable("Path", "$machinePath;C:\Program Files\nodejs", "Machine")
+    }
+
+    # Refrescar la sesión actual de PowerShell
     Refresh-Path
 
-    # Verificación de efectividad
+    # Verificación final real
     if (Test-Command "node") {
         $finalVersion = (node -v)
         if ($finalVersion -replace "v", "" -eq $targetVersion) {
-            Write-Ok "Node instalado y verificado correctamente: $finalVersion"
+            Write-Ok "Node instalado y verificado por extracción directa: $finalVersion"
         } else {
-            Write-Fail "Se instaló Node pero la versión reportada es $finalVersion. Puede requerir reiniciar la terminal."
+            Write-Fail "Node extraído pero el sistema sigue respondiendo con la versión: $finalVersion."
+            exit 1
         }
     } else {
-        Write-Fail "Node.js no se encuentra disponible en el PATH actual luego de la instalación."
+        Write-Fail "No se pudo mapear el ejecutable de Node en el PATH de Windows."
         exit 1
     }
 }
-
 
 ##########################################################
 #       3. Verificar npm 
