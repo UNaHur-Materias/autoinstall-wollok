@@ -22,7 +22,7 @@ c:
 cd /
 git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
 cd autoinstall-wollok
-./serio.cmd
+./setup.cmd
 
 ```
 

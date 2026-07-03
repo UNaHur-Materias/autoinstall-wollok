@@ -3,7 +3,7 @@
 #
 # Instala y configura el entorno Wollok completo en Windows
 #
-# Componentes: VSCode + Node 22 + npm + wollok-ts-cli + extensiones VSCode
+# Componentes: VSCode + Node 20 + npm + wollok-ts-cli + extensiones VSCode
 #
 # Uso remoto (desde GitHub):
 #   Set-ExecutionPolicy RemoteSigned -Scope Process -Force;
@@ -81,24 +81,24 @@ if (Test-Command "code") {
 }
 
 ##########################################################
-#       2. Instalar Node.js 22 LTS 
+#       2. Instalar Node.js 20 LTS 
 ##########################################################
 
-Write-Step "Node.js 22 LTS"
+Write-Step "Node.js 20 LTS"
 $nodeInstalled = Test-Command "node"
 if ($nodeInstalled) {
     $nodeVersion = (node -v) -replace "v", ""
     $nodeMajor   = [int]($nodeVersion.Split(".")[0])
-    if ($nodeMajor -ge 22) {
+    if ($nodeMajor -ge 20) {
         Write-Skip "Node $nodeVersion"
     } else {
-        Write-Host "  Versión detectada: $nodeVersion — actualizando a Node 22..."
-        winget install --id OpenJS.NodeJS.LTS --version "22*" --silent --accept-package-agreements --accept-source-agreements
+        Write-Host "  Versión detectada: $nodeVersion — actualizando a Node 20..."
+        winget install --id OpenJS.NodeJS.LTS --version "20*" --silent --accept-package-agreements --accept-source-agreements
         Refresh-Path
         Write-Ok "Node actualizado a $(node -v)"
     }
 } else {
-    Write-Host "  Instalando Node.js 22 LTS via winget..."
+    Write-Host "  Instalando Node.js 20 LTS via winget..."
     winget install --id OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
     Refresh-Path
     if (Test-Command "node") {
