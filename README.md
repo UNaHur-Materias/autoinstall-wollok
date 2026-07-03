@@ -4,12 +4,19 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 
 
 ---
-## Instalar gh cli por consola
+
+## OPCIONES PARA INSTALAR GH CLI
+
+### Instalar gh cli por consola
 ```powershell
 winget install --id GitHub.cli
 ```
 
-## Login con gh cli
+### Instalar gh cli por msi
+[Descarga directa de gh msi v2.96]: https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_windows_amd64.msi
+
+
+### Login con gh cli
 ```powershell
 gh auth login
 ```
@@ -46,7 +53,7 @@ cd autoinstall-wollok
 2. Copiá, pegá el siguiente comando y presioná `ENTER`:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm [https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1](https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1) | iex
+Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1 | iex
 
 ```
 
