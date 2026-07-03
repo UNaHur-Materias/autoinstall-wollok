@@ -29,7 +29,7 @@ gh auth login
 
 ### 🖱️ Método con ejecutable - Con descarga previa
 
-1. Cloná el repo en el pendrive: git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
+1. Cloná el repo en el pendrive: `git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git`
 2. Ejecutá el archivo `setup.cmd` en la raíz del repositorio recien clonado.
 3. Al finalizar te da un informe si hay error, o cierra la ventana si termina correctamente la instalación
 
