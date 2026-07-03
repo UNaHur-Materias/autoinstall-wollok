@@ -14,6 +14,18 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 2. Ejecutá el archivo `setup.cmd` en la raíz del repositorio recien clonado.
 3. Al finalizar te da un informe si hay error, o cierra la ventana si termina correctamente la instalación
 
+### Script
+
+
+```powershell
+c:
+cd /
+git clone https://github.com/UNaHur-Materias/autoinstall-wollok.git
+cd autoinstall-wollok
+./serio.cmd
+
+```
+
 
 ### 🖥️ Método por consola PowerShell - Completamente online 
 
@@ -24,6 +36,7 @@ Script desatendido de PowerShell para instalar, actualizar y configurar de forma
 Set-ExecutionPolicy RemoteSigned -Scope Process -Force; irm [https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1](https://raw.githubusercontent.com/UNaHur-Materias/autoinstall-wollok/main/script.ps1) | iex
 
 ```
+
 3. Al finalizar te da un informe si hay error, o cierra la ventana si termina correctamente la instalación
 
 
